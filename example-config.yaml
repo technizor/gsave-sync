@@ -1,0 +1,9 @@
+games:
+  Trails of Cold Steel:
+    shortName: 'tocs1'
+    path: '~/Saved Games/FALCOM/ed8'
+  Trails of Cold Steel II:
+    shortName: 'tocs2'
+    path: '~/Saved Games/FALCOM/ed8_2'
+settings:
+  history: 4
