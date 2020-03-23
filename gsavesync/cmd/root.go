@@ -3,18 +3,20 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	gss "github.com/technizor/gsavesync"
+	"github.com/technizor/gsavesync/config"
 )
 
 var (
 	cfgFile     string
 	userLicense string
 	rootCmd     = &cobra.Command{
-		Use:   "gss",
+		Use:   "gsavesync",
 		Short: "gsavesync is a game save manager",
 		Long: `A useless game save manager built
 				with Golang.`,
@@ -22,13 +24,43 @@ var (
 	hashCmd = &cobra.Command{
 		Use:   "hash [file]",
 		Short: "Get the SHA-256 hash of a file",
-		Long:  `Get the SHA-256 hash of a file`,
+		Long:  `Get the SHA-256 hash of a file in hexadecimal`,
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			filePath := args[0]
 
 			fhash := gss.Filehash(filePath)
 			os.Stdout.WriteString(fhash)
+		},
+	}
+	saveCmd = &cobra.Command{
+		Use:   "save [command]",
+		Short: "",
+		Long:  ``,
+	}
+	saveReadCmd = &cobra.Command{
+		Use:   "read [file]",
+		Short: "Read a save config file",
+		Long:  `Read a save config file`,
+		Args:  cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			fpath := args[0]
+
+			config.ReadConfig(fpath)
+		},
+	}
+	saveInitCmd = &cobra.Command{
+		Use:   "init [file]",
+		Short: "Read a save config file",
+		Long:  ``,
+		Args:  cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			fpath := args[0]
+			v := config.Config{
+				Games:        []config.Game{},
+				SaveSettings: config.DefaultSaveSettings(),
+			}
+			config.WriteConfig(fpath, v)
 		},
 	}
 )
@@ -40,18 +72,12 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
-	rootCmd.PersistentFlags().StringP("author", "a", "YOUR NAME", "author name for copyright attribution")
-	rootCmd.PersistentFlags().StringVarP(&userLicense, "license", "l", "", "name of license for the project")
-	rootCmd.PersistentFlags().Bool("viper", true, "use Viper for configuration")
 
-	viper.BindPFlag("author", rootCmd.PersistentFlags().Lookup("author"))
-	viper.BindPFlag("useViper", rootCmd.PersistentFlags().Lookup("viper"))
-
-	viper.SetDefault("author", "Sherman Ying <fishermanying@gmail.com>")
-	viper.SetDefault("license", "MIT")
-
+	fmt.Println(runtime.GOOS)
 	rootCmd.AddCommand(hashCmd)
+	rootCmd.AddCommand(saveCmd)
+	saveCmd.AddCommand(saveInitCmd)
+	saveCmd.AddCommand(saveReadCmd)
 }
 
 func er(msg interface{}) {
@@ -70,7 +96,7 @@ func initConfig() {
 			er(err)
 		}
 
-		// Search config in home directory with name ".cobra" (without extension).
+		// Search config in home directory with name ".gsavesync" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".gsavesync")
 	}

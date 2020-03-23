@@ -1,6 +1,0 @@
-settings:
-  timestamp: true
-  history: 3
-  savePath: '.'
-  compress: false
-  prefix: 'save'

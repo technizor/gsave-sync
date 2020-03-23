@@ -1,0 +1,14 @@
+[{
+    "Name": "The Legend of Heroes: Trails of Cold Steel",
+    "ShortName": "tloh-tocs1",
+    "Path": {
+        "windows": "~/Saved Games/FALCOM/ed8"
+    }
+},
+{
+    "Name": "The Legend of Heroes: Trails of Cold Steel II",
+    "ShortName": "tloh-tocs2",
+    "Path": {
+        "windows": "~/Saved Games/FALCOM/ed8_2"
+    }
+}]
