@@ -16,6 +16,9 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
+ENV PROTOC_VERSION=3.11.4
+ENV PROTOGO_VERSION=1.3.5
+
 # Configure apt, install packages and tools
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
@@ -67,6 +70,14 @@ RUN apt-get update \
     && apt-get install -y sudo \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
+    # [+] Install Protobuf
+    && apt-get install -y unzip \
+    && wget -q https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip -O protoc.zip \
+    && unzip protoc.zip -d /usr/local \
+    && rm protoc.zip \
+    && go get -d -u github.com/golang/protobuf/protoc-gen-go \
+    && git -C $(go env GOPATH)/src/github.com/golang/protobuf checkout v$PROTOGO_VERSION \
+    && go install github.com/golang/protobuf/protoc-gen-go \
     # Add write permission for /go/pkg
     && chmod -R a+w /go/pkg \
     #
